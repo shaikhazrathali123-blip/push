@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+html, body {
+  background: #0a0a0b;
+  color: #f5f5f4;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: #2e2e32; border-radius: 999px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+.ember-text {
+  background: linear-gradient(180deg, #ff8a3d 0%, #ff6b1a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.card {
+  @apply bg-base-850 border border-base-700/60 rounded-2xl shadow-card;
+}
+
+.btn-ember {
+  @apply bg-ember-500 text-base-950 font-semibold rounded-full shadow-ember-sm active:scale-[0.97] transition-all;
+}
+.btn-ember:hover { box-shadow: 0 0 28px 0 rgba(255,107,26,0.45); }
+
+.btn-ghost {
+  @apply bg-base-800 text-ink-100 border border-base-600 rounded-full active:scale-[0.97] transition-all;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

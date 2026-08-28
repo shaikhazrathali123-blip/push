@@ -1,0 +1,249 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Auth (NextAuth) ----------
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------- Core domain ----------
+
+enum Visibility {
+  PUBLIC
+  FRIENDS
+  PRIVATE
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  BLOCKED
+}
+
+enum ChallengeType {
+  DAILY_TARGET // e.g. 50 today
+  WEEKLY_TARGET // e.g. 500 this week
+  UNBROKEN_SET // e.g. 20 unbroken
+  BEAT_PR
+  ONE_V_ONE
+}
+
+enum ChallengeStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  DECLINED
+}
+
+model User {
+  id             String   @id @default(cuid())
+  name           String?
+  email          String?  @unique
+  emailVerified  DateTime?
+  image          String?
+  username       String?  @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Location for "nearby athletes" — coarse (city/region) only, opt-in
+  city           String?
+  region         String?
+  country        String?
+  geohash        String?  // coarse geohash (5 chars ~ city block) for proximity queries, never exact GPS
+
+  // Privacy
+  profileVisibility  Visibility @default(FRIENDS)
+  showOnLeaderboards Boolean    @default(true)
+  showNearby         Boolean    @default(false)
+
+  // Aggregate stats (denormalized for fast reads, recomputed on workout finish)
+  totalPushups   Int      @default(0)
+  totalWorkouts  Int      @default(0)
+  totalXp        Int      @default(0)
+  level          Int      @default(1)
+  currentStreak  Int      @default(0)
+  longestStreak  Int      @default(0)
+  lastWorkoutDay DateTime? // date-only, used for streak calc
+  bestSetReps    Int      @default(0)
+
+  accounts   Account[]
+  sessions   Session[]
+  workouts   Workout[]
+  badges     UserBadge[]
+
+  friendshipsInitiated Friendship[] @relation("Requester")
+  friendshipsReceived  Friendship[] @relation("Addressee")
+
+  challengeParticipants ChallengeParticipant[]
+  challengesCreated     Challenge[]            @relation("ChallengeCreator")
+
+  leaderboardEntries LeaderboardEntry[]
+
+  @@index([totalXp])
+  @@index([geohash])
+}
+
+model Workout {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startedAt   DateTime @default(now())
+  finishedAt  DateTime?
+  durationSec Int      @default(0)
+
+  totalReps     Int @default(0)
+  validReps     Int @default(0) // camera-validated reps (count toward competitive stats)
+  invalidReps   Int @default(0) // rejected by form checks — logged for anti-cheat/debug
+  bestSetReps   Int @default(0)
+  xpEarned      Int @default(0)
+
+  // Anti-cheat / provenance
+  cameraValidated Boolean @default(true)  // false if user logged manually (never counts for leaderboards)
+  avgFormScore    Float?  // 0-1, average confidence across valid reps
+  deviceInfo      String?
+
+  sets   WorkoutSet[]
+  createdAt DateTime @default(now())
+
+  @@index([userId, startedAt])
+}
+
+model WorkoutSet {
+  id           String  @id @default(cuid())
+  workoutId    String
+  workout      Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  setNumber    Int
+  reps         Int
+  unbroken     Boolean @default(true) // no rest threshold breach within the set
+  restAfterSec Int?
+  avgTempoMs   Int?    // avg time per rep
+  formScore    Float?  // 0-1
+}
+
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeKey String   // e.g. "century_club", "streak_7", "unbroken_20"
+  earnedAt DateTime @default(now())
+
+  @@unique([userId, badgeKey])
+}
+
+// ---------- Social graph ----------
+
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  addresseeId String
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  respondedAt DateTime?
+
+  requester User @relation("Requester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee User @relation("Addressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+}
+
+// ---------- Challenges ----------
+
+model Challenge {
+  id          String          @id @default(cuid())
+  type        ChallengeType
+  title       String
+  targetReps  Int?            // for DAILY_TARGET / WEEKLY_TARGET / UNBROKEN_SET / BEAT_PR baseline
+  createdById String?
+  createdBy   User?           @relation("ChallengeCreator", fields: [createdById], references: [id])
+  startsAt    DateTime        @default(now())
+  endsAt      DateTime?
+  xpReward    Int             @default(50)
+  isSystem    Boolean         @default(false) // system-generated recurring challenges (daily/weekly)
+
+  participants ChallengeParticipant[]
+  createdAt    DateTime @default(now())
+}
+
+model ChallengeParticipant {
+  id          String          @id @default(cuid())
+  challengeId String
+  challenge   Challenge       @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      ChallengeStatus @default(ACTIVE)
+  progress    Int             @default(0) // reps accumulated toward target
+  opponentId  String?         // for ONE_V_ONE, the friend's userId
+  completedAt DateTime?
+
+  @@unique([challengeId, userId])
+}
+
+// ---------- Leaderboards (materialized, recomputed by cron/server action) ----------
+
+enum LeaderboardScope {
+  FRIENDS
+  STATE
+  GLOBAL
+}
+
+enum LeaderboardMetric {
+  WEEKLY_REPS
+  BEST_SET
+  STREAK
+  XP
+}
+
+model LeaderboardEntry {
+  id       String            @id @default(cuid())
+  userId   String
+  user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scope    LeaderboardScope
+  metric   LeaderboardMetric
+  region   String?           // state/region key, only set when scope = STATE
+  value    Int
+  rank     Int
+  periodStart DateTime       // start of the ISO week (for WEEKLY_REPS) or epoch for all-time metrics
+  updatedAt DateTime         @updatedAt
+
+  @@unique([userId, scope, metric, region, periodStart])
+  @@index([scope, metric, region, periodStart, rank])
+}
