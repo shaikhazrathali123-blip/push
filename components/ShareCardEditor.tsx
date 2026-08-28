@@ -41,7 +41,7 @@ function renderStickerDataUrl(stats: Stats): string {
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // Ember glow accent top.
+  // volt glow accent top.
   const glow = ctx.createRadialGradient(190, 0, 10, 190, 0, 220);
   glow.addColorStop(0, "rgba(255,107,26,0.35)");
   glow.addColorStop(1, "rgba(255,107,26,0)");
@@ -213,7 +213,7 @@ export default function ShareCardEditor({ stats, onClose }: { stats: Stats; onCl
       <div className="flex items-center justify-between px-5 py-4">
         <button onClick={onClose} className="text-ink-300 text-sm">Cancel</button>
         <h2 className="font-display font-semibold">Share Card</h2>
-        <button onClick={downloadSticker} className="text-ember-500 text-sm font-medium">Sticker PNG</button>
+        <button onClick={downloadSticker} className="text-volt-500 text-sm font-medium">Sticker PNG</button>
       </div>
 
       <div className="flex-1 px-5 flex flex-col gap-4">
@@ -247,7 +247,7 @@ export default function ShareCardEditor({ stats, onClose }: { stats: Stats; onCl
                 onPointerDown={onHandlePointerDown}
                 onPointerMove={onHandlePointerMove}
                 onPointerUp={onHandlePointerUp}
-                className="absolute -bottom-3 -right-3 w-7 h-7 rounded-full bg-ember-500 border-2 border-base-950 flex items-center justify-center cursor-nwse-resize"
+                className="absolute -bottom-3 -right-3 w-7 h-7 rounded-full bg-volt-500 border-2 border-base-950 flex items-center justify-center cursor-nwse-resize"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0a0a0b" strokeWidth="2.5"><path d="M21 3l-7 7M14 3h7v7M3 21l7-7M10 21H3v-7" /></svg>
               </div>
@@ -262,7 +262,7 @@ export default function ShareCardEditor({ stats, onClose }: { stats: Stats; onCl
 
         <p className="text-ink-700 text-xs text-center">Drag the sticker to reposition. Use the orange handle to resize &amp; rotate.</p>
 
-        <button onClick={exportComposite} className="btn-ember w-full py-4 font-display font-bold mt-auto mb-6">
+        <button onClick={exportComposite} className="btn-volt w-full py-4 font-display font-bold mt-auto mb-6">
           Export Image
         </button>
       </div>

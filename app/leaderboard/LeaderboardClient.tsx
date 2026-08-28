@@ -43,7 +43,7 @@ export default function LeaderboardClient() {
           <button
             key={s.key}
             onClick={() => setScope(s.key)}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold transition-colors ${scope === s.key ? "bg-ember-500 text-base-950" : "text-ink-300"}`}
+            className={`flex-1 py-2 rounded-full text-xs font-semibold transition-colors ${scope === s.key ? "bg-volt-500 text-base-950" : "text-ink-300"}`}
           >
             {s.label}
           </button>
@@ -56,7 +56,7 @@ export default function LeaderboardClient() {
             key={m.key}
             onClick={() => setMetric(m.key)}
             className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border ${
-              metric === m.key ? "bg-ember-500/15 border-ember-500 text-ember-400" : "border-base-700 text-ink-500"
+              metric === m.key ? "bg-volt-500/15 border-volt-500 text-volt-400" : "border-base-700 text-ink-500"
             }`}
           >
             {m.label}
@@ -74,9 +74,9 @@ export default function LeaderboardClient() {
         {entries.map((e) => (
           <div
             key={e.id}
-            className={`card p-3.5 flex items-center gap-3 ${e.isMe ? "border-ember-500/50 bg-ember-500/5" : ""}`}
+            className={`card p-3.5 flex items-center gap-3 ${e.isMe ? "border-volt-500/50 bg-volt-500/5" : ""}`}
           >
-            <span className={`w-7 text-center font-mono text-sm ${e.rank <= 3 ? "text-ember-400 font-bold" : "text-ink-500"}`}>
+            <span className={`w-7 text-center font-mono text-sm ${e.rank <= 3 ? "text-volt-400 font-bold" : "text-ink-500"}`}>
               {e.rank}
             </span>
             <div className="w-9 h-9 rounded-full bg-base-700 overflow-hidden flex items-center justify-center text-xs font-bold shrink-0">

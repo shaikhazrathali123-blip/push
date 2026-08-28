@@ -1,9 +1,6 @@
 /**
- * Shared types for the MediaPipe-based pushup detection pipeline.
- * Landmark shape matches MediaPipe Pose Landmarker's NormalizedLandmark
- * (x/y/z in [0,1] relative to the image, visibility in [0,1]).
- */
-
+Shared types for the MediaPipe-based pushup detection pipeline.
+*/
 export interface Landmark {
   x: number;
   y: number;
@@ -24,6 +21,7 @@ export interface PoseAngles {
   rightElbowAngle: number;
   activeElbowAngle: number;
   bodyAlignmentAngle: number;
+  activeLegAngle: number; // NEW: Hip-Knee-Ankle angle
   depthPercentage: number;
   isFacingLeft: boolean;
   visibilityScore: number;
@@ -33,6 +31,8 @@ export interface FormFeedback {
   isValidPlank: boolean;
   isGoodDepth: boolean;
   isFullExtension: boolean;
+  isLegsVisible: boolean;  // NEW: Ensures full body is in frame
+  isLegsStraight: boolean; // NEW: Prevents knee pushups
   message: string;
   type: "good" | "warning" | "info";
   score: number; // 0-100

@@ -62,10 +62,10 @@ export default function ChallengesClient() {
               <div key={c.id} className="card p-4">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-semibold">{c.challenge.title}</p>
-                  <span className="text-xs text-ember-500 font-mono">+{c.challenge.xpReward} XP</span>
+                  <span className="text-xs text-volt-500 font-mono">+{c.challenge.xpReward} XP</span>
                 </div>
                 <div className="h-2 bg-base-700 rounded-full overflow-hidden">
-                  <div className="h-full bg-ember-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                  <div className="h-full bg-volt-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
                 </div>
                 <p className="text-xs text-ink-500 mt-1.5">{c.progress} / {target} reps</p>
               </div>

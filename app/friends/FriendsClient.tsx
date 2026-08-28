@@ -51,9 +51,9 @@ export default function FriendsClient() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Add by username"
-          className="flex-1 bg-base-850 border border-base-700/60 rounded-full px-4 py-2.5 text-sm outline-none focus:border-ember-500"
+          className="flex-1 bg-base-850 border border-base-700/60 rounded-full px-4 py-2.5 text-sm outline-none focus:border-volt-500"
         />
-        <button onClick={sendRequest} className="btn-ember px-5 text-sm font-semibold">Add</button>
+        <button onClick={sendRequest} className="btn-volt px-5 text-sm font-semibold">Add</button>
       </div>
       {sendStatus && <p className="text-xs text-ink-500 -mt-4">{sendStatus}</p>}
 
@@ -67,7 +67,7 @@ export default function FriendsClient() {
                   {r.requester.image && <img src={r.requester.image} alt="" className="w-full h-full object-cover" />}
                 </div>
                 <span className="flex-1 text-sm font-medium truncate">{r.requester.name}</span>
-                <button onClick={() => respond(r.id, "ACCEPT")} className="btn-ember px-3 py-1.5 text-xs font-semibold">Accept</button>
+                <button onClick={() => respond(r.id, "ACCEPT")} className="btn-volt px-3 py-1.5 text-xs font-semibold">Accept</button>
                 <button onClick={() => respond(r.id, "DECLINE")} className="btn-ghost px-3 py-1.5 text-xs">Decline</button>
               </div>
             ))}
@@ -91,7 +91,7 @@ export default function FriendsClient() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-ember-500 font-mono">Lv{f.level}</p>
+                <p className="text-xs text-volt-500 font-mono">Lv{f.level}</p>
                 <p className="text-[10px] text-ink-500">🔥{f.currentStreak}d</p>
               </div>
             </div>
@@ -112,7 +112,7 @@ export default function FriendsClient() {
                 <p className="text-sm font-medium truncate">{n.name}</p>
                 <p className="text-xs text-ink-500">{n.city ?? "Nearby"}</p>
               </div>
-              <p className="text-xs text-ember-500 font-mono">Lv{n.level}</p>
+              <p className="text-xs text-volt-500 font-mono">Lv{n.level}</p>
             </div>
           ))}
         </div>

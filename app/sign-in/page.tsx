@@ -6,7 +6,7 @@ export default function SignInPage() {
     <div className="min-h-dvh flex flex-col items-center justify-center px-8 text-center gap-8">
       <div>
         <div className="text-5xl font-display font-bold tracking-tight mb-2">
-          Push<span className="ember-text">Quest</span>
+          Push<span className="volt-text">Quest</span>
         </div>
         <p className="text-ink-500 text-sm max-w-xs mx-auto">
           Every rep, camera-verified. Track push-ups, build streaks, and climb the leaderboard for real.
@@ -15,7 +15,7 @@ export default function SignInPage() {
 
       <button
         onClick={() => signIn("google", { callbackUrl: "/" })}
-        className="btn-ember w-full max-w-xs py-3.5 flex items-center justify-center gap-3"
+        className="btn-volt w-full max-w-xs py-3.5 flex items-center justify-center gap-3"
       >
         <svg width="18" height="18" viewBox="0 0 18 18">
           <path fill="#0a0a0b" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.87 2.7-6.62z"/>

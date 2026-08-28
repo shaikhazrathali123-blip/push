@@ -26,13 +26,13 @@ export default function RingProgress({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#ff6b1a"
+          stroke="#1A9CFF"
           strokeWidth={strokeWidth}
           fill="none"
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          style={{ filter: "drop-shadow(0 0 6px rgba(255,107,26,0.5))", transition: "stroke-dashoffset 400ms ease" }}
+          style={{ filter: "drop-shadow(0 0 2px #1A9CFF", transition: "stroke-dashoffset 400ms ease" }}
         />
       </svg>
       <div className="absolute flex flex-col items-center">

@@ -30,7 +30,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
-      <body className="font-body bg-base-950 text-ink-100 min-h-dvh bg-ember-radial antialiased">
+      <body className="font-body bg-base-950 text-ink-100 min-h-dvh bg-volt-radial antialiased pt-5">
         <Providers>
           <div className="mx-auto max-w-md min-h-dvh flex flex-col relative">
             <main className="flex-1 pb-24">{children}</main>

@@ -23,7 +23,7 @@ export default function ProfileClient({ user, workouts, chartData }: { user: any
   return (
     <div className="px-5 pt-6 pb-4 flex flex-col gap-6">
       <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-base-700 overflow-hidden shrink-0 border-2 border-ember-500/50">
+        <div className="w-16 h-16 rounded-full bg-base-700 overflow-hidden shrink-0 border-2 border-volt-500/50">
           {user.image && <img src={user.image} alt="" className="w-full h-full object-cover" />}
         </div>
         <div>
@@ -33,7 +33,7 @@ export default function ProfileClient({ user, workouts, chartData }: { user: any
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="card p-4"><p className="text-ink-500 text-xs">Total push-ups</p><p className="font-display text-2xl font-bold ember-text">{user.totalPushups.toLocaleString()}</p></div>
+        <div className="card p-4"><p className="text-ink-500 text-xs">Total push-ups</p><p className="font-display text-2xl font-bold volt-text">{user.totalPushups.toLocaleString()}</p></div>
         <div className="card p-4"><p className="text-ink-500 text-xs">Best set (PR)</p><p className="font-display text-2xl font-bold">{user.bestSetReps}</p></div>
         <div className="card p-4"><p className="text-ink-500 text-xs">Current streak</p><p className="font-display text-2xl font-bold">🔥 {user.currentStreak}d</p></div>
         <div className="card p-4"><p className="text-ink-500 text-xs">Longest streak</p><p className="font-display text-2xl font-bold">{user.longestStreak}d</p></div>
@@ -42,10 +42,10 @@ export default function ProfileClient({ user, workouts, chartData }: { user: any
       <div className="card p-4">
         <div className="flex items-center justify-between mb-1">
           <p className="text-ink-500 text-xs uppercase tracking-wide">XP Progress</p>
-          <p className="text-xs text-ember-500 font-mono">{xpIntoLevel}/{xpForNextLevel}</p>
+          <p className="text-xs text-volt-500 font-mono">{xpIntoLevel}/{xpForNextLevel}</p>
         </div>
         <div className="h-2 bg-base-700 rounded-full overflow-hidden">
-          <div className="h-full bg-ember-500 rounded-full" style={{ width: `${Math.min(100, (xpIntoLevel / xpForNextLevel) * 100)}%` }} />
+          <div className="h-full bg-volt-500 rounded-full" style={{ width: `${Math.min(100, (xpIntoLevel / xpForNextLevel) * 100)}%` }} />
         </div>
       </div>
 
@@ -86,7 +86,7 @@ export default function ProfileClient({ user, workouts, chartData }: { user: any
                 <p className="text-sm font-medium">{w.validReps} reps · best {w.bestSetReps}</p>
                 <p className="text-xs text-ink-500">{new Date(w.startedAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</p>
               </div>
-              <span className="text-ember-500 font-mono text-sm">+{w.xpEarned} XP</span>
+              <span className="text-volt-500 font-mono text-sm">+{w.xpEarned} XP</span>
             </div>
           ))}
         </div>
@@ -104,7 +104,7 @@ export default function ProfileClient({ user, workouts, chartData }: { user: any
               type="checkbox"
               checked={showOnLeaderboards}
               onChange={(e) => { setShowOnLeaderboards(e.target.checked); savePrivacy({ showOnLeaderboards: e.target.checked }); }}
-              className="w-5 h-5 accent-ember-500"
+              className="w-5 h-5 accent-volt-500"
             />
           </label>
           <label className="flex items-center justify-between p-4">
@@ -116,7 +116,7 @@ export default function ProfileClient({ user, workouts, chartData }: { user: any
               type="checkbox"
               checked={showNearby}
               onChange={(e) => { setShowNearby(e.target.checked); savePrivacy({ showNearby: e.target.checked }); }}
-              className="w-5 h-5 accent-ember-500"
+              className="w-5 h-5 accent-volt-500"
             />
           </label>
         </div>

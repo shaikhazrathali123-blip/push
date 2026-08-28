@@ -25,7 +25,7 @@ export default function BottomNav() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="btn-ember w-14 h-14 flex items-center justify-center -mt-6 shrink-0"
+                  className="btn-volt w-14 h-14 flex items-center justify-center -mt-6 shrink-0"
                   aria-label="Start workout"
                 >
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -39,7 +39,7 @@ export default function BottomNav() {
                 key={item.href}
                 href={item.href}
                 className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-full transition-colors ${
-                  active ? "text-ember-500" : "text-ink-500"
+                  active ? "text-volt-500" : "text-ink-500"
                 }`}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

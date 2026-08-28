@@ -19,11 +19,11 @@ const config: Config = {
           500: "#8b8b8f",
           700: "#55555a",
         },
-        ember: {
-          400: "#ff8a3d",
-          500: "#ff6b1a",
-          600: "#e8590c",
-          glow: "rgba(255,107,26,0.35)",
+        volt: {
+          400: "#3dd6ff",
+          500: "#1ac1ff",
+          600: "#0ca8e8",
+          glow: "rgba(26,193,255,0.35)",
         },
       },
       fontFamily: {
@@ -32,12 +32,12 @@ const config: Config = {
         mono: ["var(--font-mono)", "monospace"],
       },
       boxShadow: {
-        ember: "0 0 24px 0 rgba(255,107,26,0.35)",
-        "ember-sm": "0 0 12px 0 rgba(255,107,26,0.25)",
+        volt: "0 0 24px 0 rgba(26,193,255,0.35)",
+        "volt-sm": "0 0 12px 0 rgba(26,193,255,0.25)",
         card: "0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)",
       },
       backgroundImage: {
-        "ember-radial": "radial-gradient(circle at 50% 0%, rgba(255,107,26,0.12), transparent 60%)",
+        "volt-radial": "radial-gradient(circle at 50% 0%, rgba(26,193,255,0.12), transparent 60%)",
       },
       animation: {
         "pulse-slow": "pulse 3s cubic-bezier(0.4,0,0.6,1) infinite",

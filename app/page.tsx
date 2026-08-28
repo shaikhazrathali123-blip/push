@@ -51,18 +51,18 @@ export default async function HomePage() {
           <h1 className="font-display text-xl font-bold">{user.name?.split(" ")[0] ?? "Athlete"}</h1>
         </div>
         <div className="flex items-center gap-2 bg-base-850 border border-base-700/60 rounded-full pl-1.5 pr-3 py-1.5">
-          <div className="w-7 h-7 rounded-full bg-ember-500/20 flex items-center justify-center text-ember-400 text-xs font-bold">
+          <div className="w-7 h-7 rounded-full bg-volt-500/20 flex items-center justify-center text-volt-400 text-xs font-bold">
             🔥
           </div>
           <span className="font-mono text-sm font-medium">{user.currentStreak}d</span>
         </div>
       </header>
 
-      <div className="card p-5 flex items-center gap-5 bg-ember-radial">
+      <div className="card p-5 flex items-center gap-5 bg-volt-radial">
         <RingProgress value={xpIntoLevel} max={xpForNextLevel} label={`Lv${user.level}`} sublabel="level" />
         <div className="flex-1">
           <p className="text-ink-500 text-xs uppercase tracking-wide mb-1">Total XP</p>
-          <p className="font-display text-2xl font-bold ember-text">{user.totalXp.toLocaleString()}</p>
+          <p className="font-display text-2xl font-bold volt-text">{user.totalXp.toLocaleString()}</p>
           <p className="text-ink-500 text-xs mt-1">
             {xpForNextLevel - xpIntoLevel} XP to level {user.level + 1}
           </p>
@@ -77,7 +77,7 @@ export default async function HomePage() {
 
       <Link
         href="/workout"
-        className="btn-ember w-full py-4 text-center font-display font-bold text-lg flex items-center justify-center gap-2"
+        className="btn-volt w-full py-4 text-center font-display font-bold text-lg flex items-center justify-center gap-2"
       >
         Start Workout
       </Link>
@@ -85,7 +85,7 @@ export default async function HomePage() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-display font-semibold text-sm text-ink-300">Recent activity</h2>
-          <Link href="/profile" className="text-xs text-ember-500">View all</Link>
+          <Link href="/profile" className="text-xs text-volt-500">View all</Link>
         </div>
         <div className="flex flex-col gap-2">
           {recentWorkouts.length === 0 && (
@@ -99,7 +99,7 @@ export default async function HomePage() {
                 <p className="font-medium text-sm">{w.validReps} reps · best set {w.bestSetReps}</p>
                 <p className="text-ink-500 text-xs">{new Date(w.startedAt).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}</p>
               </div>
-              <span className="text-ember-500 font-mono text-sm">+{w.xpEarned} XP</span>
+              <span className="text-volt-500 font-mono text-sm">+{w.xpEarned} XP</span>
             </div>
           ))}
         </div>
