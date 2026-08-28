@@ -6,7 +6,7 @@ import { xpForWorkout, levelForXp, nextStreak, badgesEarned } from "@/lib/gamifi
 
 // Each set the client reports is the *aggregated result of the on-device state
 // machine*, not raw camera frames — reps here have already passed the
-// depth/extension/alignment checks in lib/pushup-detector.ts. We still re-validate
+// depth/extension/alignment checks in lib/pushup/engine.ts. We still re-validate
 // shape and sane bounds server-side so a tampered client can't inject fake reps.
 const SetSchema = z.object({
   setNumber: z.number().int().min(1),
