@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import { LineChart, Line, XAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { BADGE_DEFINITIONS, levelForXp } from "@/lib/gamification";
@@ -19,6 +19,10 @@ export default function ProfileClient({ user, workouts, chartData }: { user: any
     }).catch(() => {});
     setSaving(false);
   };
+
+  useEffect(() => {
+    console.log("User data:", user);
+  }, [user]);
 
   return (
     <div className="px-5 pt-6 pb-4 flex flex-col gap-6">

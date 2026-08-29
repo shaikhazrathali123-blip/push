@@ -29,8 +29,9 @@ export async function POST(req: NextRequest) {
   const userId = (session.user as any).id as string;
 
   const parsed = RespondSchema.safeParse(await req.json());
-  if (!parsed.success) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+console.log("Parsed request data:", parsed.data);
 
+  if (!parsed.success) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   const friendship = await prisma.friendship.findUnique({ where: { id: parsed.data.friendshipId } });
   if (!friendship || friendship.addresseeId !== userId) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
