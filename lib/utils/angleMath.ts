@@ -177,12 +177,14 @@ export function analyzePushupPose(
       isPlankPosition,
     },
     feedback: {
-      isValidPlank,
-      isGoodDepth,
-      isFullExtension,
-      message,
-      type,
-      score,
-    },
+  isValidPlank,
+  isGoodDepth,
+  isFullExtension,
+  isLegsVisible: false,   // or the real computed value
+  isLegsStraight: false,  // or the real computed value
+  message,
+  type,
+  score,
+},
   };
 }
