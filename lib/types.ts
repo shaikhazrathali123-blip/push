@@ -38,5 +38,4 @@ export interface FormFeedback {
   message: string;
   type: "good" | "warning" | "info";
   score: number; // 0-100
-  
 }
