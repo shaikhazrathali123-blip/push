@@ -21,11 +21,13 @@ export interface PoseAngles {
   rightElbowAngle: number;
   activeElbowAngle: number;
   bodyAlignmentAngle: number;
-  activeLegAngle: number; // NEW: Hip-Knee-Ankle angle
   depthPercentage: number;
   isFacingLeft: boolean;
   visibilityScore: number;
+  torsoTiltDegrees: number;   // NEW: 0° = horizontal (plank), 90° = vertical (standing)
+  isPlankPosition: boolean;   // NEW: true only when torso is horizontal enough to count reps
 }
+
 
 export interface FormFeedback {
   isValidPlank: boolean;
@@ -36,4 +38,5 @@ export interface FormFeedback {
   message: string;
   type: "good" | "warning" | "info";
   score: number; // 0-100
+  
 }

@@ -12,98 +12,7 @@ interface Stats {
   rank?: number;
 }
 
-/**
- * Renders the stat sticker to an offscreen canvas with a transparent
- * background (so it can be downloaded standalone or composited over a photo),
- * then converts it to a data URL used both as the downloadable sticker and as
- * the draggable overlay image in the editor.
- */
-function renderStickerDataUrl(stats: Stats): string {
-  const canvas = document.createElement("canvas");
-  const scale = 3; // export at 3x for crisp downloads
-  const W = 380 * scale;
-  const H = 460 * scale;
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext("2d")!;
-  ctx.scale(scale, scale);
-  ctx.clearRect(0, 0, 380, 460);
-
-  // Card background: translucent charcoal glass panel.
-  roundRect(ctx, 0, 0, 380, 460, 28);
-  const grad = ctx.createLinearGradient(0, 0, 0, 460);
-  grad.addColorStop(0, "rgba(20,20,22,0.92)");
-  grad.addColorStop(1, "rgba(10,10,11,0.96)");
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  ctx.strokeStyle = "rgba(255,255,255,0.08)";
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // volt glow accent top.
-  const glow = ctx.createRadialGradient(190, 0, 10, 190, 0, 220);
-  glow.addColorStop(0, "rgba(255,107,26,0.35)");
-  glow.addColorStop(1, "rgba(255,107,26,0)");
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(190, 0, 220, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Wordmark
-  ctx.fillStyle = "#f5f5f4";
-  ctx.font = "700 22px 'Space Grotesk', sans-serif";
-  ctx.fillText("Push", 28, 52);
-  ctx.fillStyle = "#ff6b1a";
-  const pushWidth = ctx.measureText("Push").width;
-  ctx.fillText("Quest", 28 + pushWidth, 52);
-
-  ctx.fillStyle = "rgba(139,139,143,1)";
-  ctx.font = "500 12px 'Inter', sans-serif";
-  ctx.fillText("CAMERA-VERIFIED WORKOUT", 28, 72);
-
-  // Big rep count
-  ctx.fillStyle = "#ff8a3d";
-  ctx.font = "700 96px 'Space Grotesk', sans-serif";
-  ctx.fillText(String(stats.reps), 28, 178);
-  ctx.fillStyle = "rgba(199,199,201,1)";
-  ctx.font = "500 15px 'Inter', sans-serif";
-  ctx.fillText("PUSH-UPS", 30, 200);
-
-  // Stat grid
-  const statList: Array<[string, string]> = [
-    ["BEST SET", `${stats.bestSet}`],
-    ["DURATION", formatDuration(stats.durationSec)],
-    ["XP EARNED", `+${stats.xp}`],
-    ["STREAK", `${stats.currentStreak}🔥`],
-  ];
-  const gridTop = 232;
-  statList.forEach(([label, value], i) => {
-    const col = i % 2;
-    const row = Math.floor(i / 2);
-    const x = 28 + col * 175;
-    const y = gridTop + row * 76;
-    ctx.fillStyle = "rgba(139,139,143,1)";
-    ctx.font = "600 11px 'Inter', sans-serif";
-    ctx.fillText(label, x, y);
-    ctx.fillStyle = "#f5f5f4";
-    ctx.font = "700 28px 'Space Grotesk', sans-serif";
-    ctx.fillText(value, x, y + 32);
-  });
-
-  // Footer divider + longest streak / rank
-  ctx.strokeStyle = "rgba(255,255,255,0.08)";
-  ctx.beginPath();
-  ctx.moveTo(28, 400);
-  ctx.lineTo(352, 400);
-  ctx.stroke();
-
-  ctx.fillStyle = "rgba(139,139,143,1)";
-  ctx.font = "500 12px 'Inter', sans-serif";
-  ctx.fillText(`Longest streak: ${stats.longestStreak} days${stats.rank ? `  ·  Rank #${stats.rank}` : ""}`, 28, 428);
-
-  return canvas.toDataURL("image/png");
-}
+type StickerStyle = "classic" | "bold" | "compact" | "minimal";
 
 function formatDuration(sec: number) {
   const m = Math.floor(sec / 60);
@@ -111,168 +20,229 @@ function formatDuration(sec: number) {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + w, y, x + w, y + h, r);
-  ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r);
-  ctx.arcTo(x, y, x + w, y, r);
-  ctx.closePath();
+// Helper to draw text with a subtle dark stroke, ensuring readability on ANY background (Strava-style)
+function drawStrokedText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  font: string,
+  fill: string,
+  stroke: string,
+  lineWidth: number
+) {
+  ctx.font = font;
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = lineWidth;
+  ctx.lineJoin = "round";
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = fill;
+  ctx.fillText(text, x, y);
 }
 
-type Transform = { x: number; y: number; scale: number; rotate: number };
+function renderClassic(ctx: CanvasRenderingContext2D, stats: Stats, scale: number) {
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const cx = 300 * scale;
+  const cy = 200 * scale;
 
-export default function ShareCardEditor({ stats, onClose }: { stats: Stats; onClose: () => void }) {
+  ctx.font = `700 ${24 * scale}px 'Space Grotesk', sans-serif`;
+  const pushW = ctx.measureText("PUSH").width;
+  const questW = ctx.measureText("QUEST").width;
+  const totalW = pushW + 4 * scale + questW;
+
+  drawStrokedText(ctx, "PUSH", cx - totalW / 2, cy - 120 * scale, `700 ${24 * scale}px 'Space Grotesk', sans-serif`, "#ff6b1a", "rgba(0,0,0,0.6)", 3 * scale);
+  drawStrokedText(ctx, "QUEST", cx - totalW / 2 + pushW + 4 * scale, cy - 120 * scale, `700 ${24 * scale}px 'Space Grotesk', sans-serif`, "#f5f5f4", "rgba(0,0,0,0.6)", 3 * scale);
+
+  drawStrokedText(ctx, String(stats.reps), cx, cy + 10 * scale, `800 ${120 * scale}px 'Space Grotesk', sans-serif`, "#ffffff", "rgba(0,0,0,0.6)", 6 * scale);
+  drawStrokedText(ctx, "PUSH-UPS", cx, cy + 70 * scale, `600 ${18 * scale}px 'Inter', sans-serif`, "rgba(255,255,255,0.8)", "rgba(0,0,0,0.6)", 3 * scale);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.4)";
+  ctx.lineWidth = 2 * scale;
+  ctx.beginPath();
+  ctx.moveTo(cx - 60 * scale, cy + 110 * scale);
+  ctx.lineTo(cx + 60 * scale, cy + 110 * scale);
+  ctx.stroke();
+
+  drawStrokedText(ctx, `${formatDuration(stats.durationSec)}  •  ${stats.bestSet} BEST SET  •  🔥 ${stats.currentStreak}`, cx, cy + 150 * scale, `600 ${16 * scale}px 'Inter', sans-serif`, "#ffffff", "rgba(0,0,0,0.6)", 3 * scale);
+}
+
+function renderBold(ctx: CanvasRenderingContext2D, stats: Stats, scale: number) {
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+  const x = 40 * scale;
+  let y = 40 * scale;
+
+  drawStrokedText(ctx, String(stats.reps), x, y, `900 ${140 * scale}px 'Space Grotesk', sans-serif`, "#ffffff", "rgba(0,0,0,0.6)", 6 * scale);
+  
+  y += 130 * scale;
+  drawStrokedText(ctx, "PUSH-UPS COMPLETED", x, y, `700 ${32 * scale}px 'Inter', sans-serif`, "#ff6b1a", "rgba(0,0,0,0.6)", 4 * scale);
+
+  y += 60 * scale;
+  drawStrokedText(ctx, `Duration: ${formatDuration(stats.durationSec)}`, x, y, `600 ${20 * scale}px 'Inter', sans-serif`, "#ffffff", "rgba(0,0,0,0.6)", 3 * scale);
+  y += 35 * scale;
+  drawStrokedText(ctx, `Best Set: ${stats.bestSet}  •  XP: +${stats.xp}`, x, y, `600 ${20 * scale}px 'Inter', sans-serif`, "#ffffff", "rgba(0,0,0,0.6)", 3 * scale);
+  y += 35 * scale;
+  drawStrokedText(ctx, `Streak: ${stats.currentStreak} days 🔥`, x, y, `600 ${20 * scale}px 'Inter', sans-serif`, "#ffffff", "rgba(0,0,0,0.6)", 3 * scale);
+}
+
+function renderCompact(ctx: CanvasRenderingContext2D, stats: Stats, scale: number) {
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const cx = 200 * scale;
+  const cy = 150 * scale;
+
+  drawStrokedText(ctx, "PUSHQUEST", cx, cy - 60 * scale, `700 ${20 * scale}px 'Inter', sans-serif`, "#ff6b1a", "rgba(0,0,0,0.6)", 3 * scale);
+  drawStrokedText(ctx, `${stats.reps}`, cx, cy + 10 * scale, `800 ${80 * scale}px 'Space Grotesk', sans-serif`, "#ffffff", "rgba(0,0,0,0.6)", 5 * scale);
+  drawStrokedText(ctx, "reps", cx, cy + 60 * scale, `600 ${16 * scale}px 'Inter', sans-serif`, "rgba(255,255,255,0.8)", "rgba(0,0,0,0.6)", 3 * scale);
+  drawStrokedText(ctx, `${formatDuration(stats.durationSec)}  •  🔥 ${stats.currentStreak}`, cx, cy + 100 * scale, `500 ${14 * scale}px 'Inter', sans-serif`, "rgba(255,255,255,0.7)", "rgba(0,0,0,0.6)", 3 * scale);
+}
+
+function renderMinimal(ctx: CanvasRenderingContext2D, stats: Stats, scale: number) {
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+  const x = 30 * scale;
+  let y = 30 * scale;
+
+  drawStrokedText(ctx, "PUSHQUEST WORKOUT", x, y, `500 ${14 * scale}px 'Inter', sans-serif`, "rgba(255,255,255,0.7)", "rgba(0,0,0,0.6)", 3 * scale);
+  y += 40 * scale;
+  drawStrokedText(ctx, `${stats.reps}`, x, y, `800 ${90 * scale}px 'Space Grotesk', sans-serif`, "#ffffff", "rgba(0,0,0,0.6)", 5 * scale);
+  y += 80 * scale;
+  drawStrokedText(ctx, "PUSH-UPS", x, y, `600 ${18 * scale}px 'Inter', sans-serif`, "#ff6b1a", "rgba(0,0,0,0.6)", 3 * scale);
+  y += 40 * scale;
+  drawStrokedText(ctx, `${formatDuration(stats.durationSec)}  •  Best: ${stats.bestSet}  •  🔥 ${stats.currentStreak}`, x, y, `400 ${14 * scale}px 'Inter', sans-serif`, "rgba(255,255,255,0.8)", "rgba(0,0,0,0.6)", 3 * scale);
+}
+
+export default function ShareSticker({ stats, onClose }: { stats: Stats; onClose: () => void }) {
+  const [selectedStyle, setSelectedStyle] = useState<StickerStyle>("classic");
   const [stickerUrl, setStickerUrl] = useState<string | null>(null);
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-  const [transform, setTransform] = useState<Transform>({ x: 0.5, y: 0.5, scale: 0.7, rotate: 0 });
-  const stageRef = useRef<HTMLDivElement | null>(null);
-  const dragState = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
-  const gestureState = useRef<{ startDist: number; startAngle: number; origScale: number; origRotate: number } | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  const generateSticker = useCallback(() => {
+    const canvas = document.createElement("canvas");
+    const scale = 3; // 3x for crisp exports
+    let baseW = 600, baseH = 400;
+    if (selectedStyle === "compact") { baseW = 400; baseH = 300; }
+    
+    canvas.width = baseW * scale;
+    canvas.height = baseH * scale;
+    const ctx = canvas.getContext("2d")!;
+    ctx.scale(scale, scale);
+    
+    // Fully transparent background (default canvas is transparent, but we clear to be sure)
+    ctx.clearRect(0, 0, baseW, baseH);
+
+    if (selectedStyle === "classic") renderClassic(ctx, stats, scale);
+    else if (selectedStyle === "bold") renderBold(ctx, stats, scale);
+    else if (selectedStyle === "compact") renderCompact(ctx, stats, scale);
+    else if (selectedStyle === "minimal") renderMinimal(ctx, stats, scale);
+
+    const dataUrl = canvas.toDataURL("image/png");
+    setStickerUrl(dataUrl);
+    canvasRef.current = canvas;
+  }, [stats, selectedStyle]);
 
   useEffect(() => {
-    setStickerUrl(renderStickerDataUrl(stats));
-  }, [stats]);
+    generateSticker();
+  }, [generateSticker]);
 
-  const onPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setPhotoUrl(reader.result as string);
-    reader.readAsDataURL(file);
-  };
-
-  const downloadSticker = () => {
+  const handleDownload = () => {
     if (!stickerUrl) return;
     const a = document.createElement("a");
     a.href = stickerUrl;
-    a.download = "pushquest-sticker.png";
+    a.download = `pushquest-${selectedStyle}-sticker.png`;
     a.click();
   };
 
-  const exportComposite = useCallback(async () => {
-    if (!stageRef.current) return;
-    const { toPng } = await import("html-to-image");
-    const dataUrl = await toPng(stageRef.current, { pixelRatio: 2, cacheBust: true });
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = "pushquest-share.png";
-    a.click();
-  }, []);
-
-  // Drag to move
-  const onPointerDown = (e: React.PointerEvent) => {
-    (e.target as Element).setPointerCapture(e.pointerId);
-    dragState.current = { startX: e.clientX, startY: e.clientY, origX: transform.x, origY: transform.y };
-  };
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!dragState.current || !stageRef.current) return;
-    const rect = stageRef.current.getBoundingClientRect();
-    const dx = (e.clientX - dragState.current.startX) / rect.width;
-    const dy = (e.clientY - dragState.current.startY) / rect.height;
-    setTransform((t) => ({ ...t, x: clamp01(dragState.current!.origX + dx), y: clamp01(dragState.current!.origY + dy) }));
-  };
-  const onPointerUp = () => {
-    dragState.current = null;
+  const handleCopy = async () => {
+    if (!canvasRef.current) return;
+    try {
+      canvasRef.current.toBlob(async (blob) => {
+        if (!blob) return;
+        // @ts-ignore - ClipboardItem is supported in modern browsers
+        await navigator.clipboard.write([
+          new ClipboardItem({ "image/png": blob })
+        ]);
+        alert("Sticker copied to clipboard!");
+      });
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+      alert("Failed to copy. Your browser may not support this. Try downloading instead.");
+    }
   };
 
-  // Resize/rotate via a handle at the corner.
-  const onHandlePointerDown = (e: React.PointerEvent) => {
-    e.stopPropagation();
-    (e.target as Element).setPointerCapture(e.pointerId);
-    if (!stageRef.current) return;
-    const rect = stageRef.current.getBoundingClientRect();
-    const cx = rect.left + transform.x * rect.width;
-    const cy = rect.top + transform.y * rect.height;
-    const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
-    const angle = Math.atan2(e.clientY - cy, e.clientX - cx);
-    gestureState.current = { startDist: dist, startAngle: angle, origScale: transform.scale, origRotate: transform.rotate };
-  };
-  const onHandlePointerMove = (e: React.PointerEvent) => {
-    if (!gestureState.current || !stageRef.current) return;
-    const rect = stageRef.current.getBoundingClientRect();
-    const cx = rect.left + transform.x * rect.width;
-    const cy = rect.top + transform.y * rect.height;
-    const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
-    const angle = Math.atan2(e.clientY - cy, e.clientX - cx);
-    const scaleRatio = dist / Math.max(1, gestureState.current.startDist);
-    const rotateDelta = ((angle - gestureState.current.startAngle) * 180) / Math.PI;
-    setTransform((t) => ({
-      ...t,
-      scale: clamp(gestureState.current!.origScale * scaleRatio, 0.25, 1.6),
-      rotate: gestureState.current!.origRotate + rotateDelta,
-    }));
-  };
-  const onHandlePointerUp = () => {
-    gestureState.current = null;
-  };
+  const styles: { id: StickerStyle; label: string }[] = [
+    { id: "classic", label: "Classic" },
+    { id: "bold", label: "Bold" },
+    { id: "compact", label: "Compact" },
+    { id: "minimal", label: "Minimal" },
+  ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-base-950 flex flex-col">
-      <div className="flex items-center justify-between px-5 py-4">
-        <button onClick={onClose} className="text-ink-300 text-sm">Cancel</button>
-        <h2 className="font-display font-semibold">Share Card</h2>
-        <button onClick={downloadSticker} className="text-volt-500 text-sm font-medium">Sticker PNG</button>
-      </div>
-
-      <div className="flex-1 px-5 flex flex-col gap-4">
-        <div
-          ref={stageRef}
-          className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-base-900 border border-base-700/60 touch-none select-none"
-          onPointerMove={(e) => { onPointerMove(e); }}
-          onPointerUp={onPointerUp}
-        >
-          {photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={photoUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-ink-700 text-sm">Upload a photo below (optional)</div>
-          )}
-
-          {stickerUrl && (
-            <div
-              className="absolute cursor-grab active:cursor-grabbing"
-              style={{
-                left: `${transform.x * 100}%`,
-                top: `${transform.y * 100}%`,
-                width: 190 * transform.scale,
-                transform: `translate(-50%, -50%) rotate(${transform.rotate}deg)`,
-              }}
-              onPointerDown={onPointerDown}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={stickerUrl} alt="stat sticker" className="w-full drop-shadow-2xl pointer-events-none" draggable={false} />
-              <div
-                onPointerDown={onHandlePointerDown}
-                onPointerMove={onHandlePointerMove}
-                onPointerUp={onHandlePointerUp}
-                className="absolute -bottom-3 -right-3 w-7 h-7 rounded-full bg-volt-500 border-2 border-base-950 flex items-center justify-center cursor-nwse-resize"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0a0a0b" strokeWidth="2.5"><path d="M21 3l-7 7M14 3h7v7M3 21l7-7M10 21H3v-7" /></svg>
-              </div>
-            </div>
-          )}
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+      <div className="bg-base-900 border border-base-700/60 rounded-2xl w-full max-w-md flex flex-col overflow-hidden shadow-2xl">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-base-700/60">
+          <h2 className="font-display font-semibold text-lg">Share Sticker</h2>
+          <button onClick={onClose} className="text-ink-400 hover:text-ink-200 text-sm">Close</button>
         </div>
 
-        <label className="btn-ghost w-full py-3 text-center text-sm cursor-pointer">
-          {photoUrl ? "Change Photo" : "Upload Your Photo"}
-          <input type="file" accept="image/*" className="hidden" onChange={onPhotoChange} />
-        </label>
+        <div className="p-5 flex flex-col gap-4">
+          {/* Preview Area with checkerboard pattern to explicitly show transparency */}
+          <div className="relative w-full aspect-[3/2] rounded-xl overflow-hidden border border-base-700/40" 
+               style={{ 
+                 backgroundImage: "linear-gradient(45deg, #1a1a1a 25%, transparent 25%), linear-gradient(-45deg, #1a1a1a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1a1a1a 75%), linear-gradient(-45deg, transparent 75%, #1a1a1a 75%)",
+                 backgroundSize: "20px 20px",
+                 backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px"
+               }}>
+            {stickerUrl && (
+              <img 
+                src={stickerUrl} 
+                alt="Sticker Preview" 
+                className="absolute inset-0 w-full h-full object-contain p-4" 
+              />
+            )}
+          </div>
 
-        <p className="text-ink-700 text-xs text-center">Drag the sticker to reposition. Use the orange handle to resize &amp; rotate.</p>
+          {/* Style Selector */}
+          <div className="grid grid-cols-4 gap-2">
+            {styles.map((style) => (
+              <button
+                key={style.id}
+                onClick={() => setSelectedStyle(style.id)}
+                className={`py-2 px-1 text-xs font-medium rounded-lg border transition-colors ${
+                  selectedStyle === style.id
+                    ? "bg-volt-500/20 border-volt-500 text-volt-400"
+                    : "bg-base-800 border-base-700 text-ink-400 hover:bg-base-700"
+                }`}
+              >
+                {style.label}
+              </button>
+            ))}
+          </div>
 
-        <button onClick={exportComposite} className="btn-volt w-full py-4 font-display font-bold mt-auto mb-6">
-          Export Image
-        </button>
+          <p className="text-ink-500 text-xs text-center">
+            Fully transparent background. Ready to overlay on any photo or video.
+          </p>
+
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-3 mt-2">
+            <button 
+              onClick={handleCopy}
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-base-800 border border-base-700 text-ink-200 font-medium hover:bg-base-700 transition-colors"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+            <button 
+              onClick={handleDownload}
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-volt-500 text-base-950 font-bold hover:bg-volt-400 transition-colors"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Save PNG
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
-
-function clamp(v: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, v));
-}
-function clamp01(v: number) {
-  return clamp(v, 0.05, 0.95);
 }

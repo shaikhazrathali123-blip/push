@@ -139,7 +139,7 @@ export default function WorkoutClient() {
   if (phase === "setup") {
     return (
       <div className="px-5 pt-10 flex flex-col items-center gap-6 text-center">
-        <div className="w-20 h-20 rounded-3xl bg-volt-500/15 flex items-center justify-center text-4xl">💪</div>
+        <div className="w-20 h-20 rounded-3xl bg-ember-500/15 flex items-center justify-center text-4xl">💪</div>
         <div>
           <h1 className="font-display text-2xl font-bold mb-2">Ready to grind?</h1>
           <p className="text-ink-500 text-sm max-w-xs">
@@ -147,7 +147,7 @@ export default function WorkoutClient() {
           </p>
         </div>
         {error && <p className="text-red-400 text-xs">{error}</p>}
-        <button onClick={beginWorkout} className="btn-volt w-full max-w-xs py-4 font-display font-bold text-lg">
+        <button onClick={beginWorkout} className="btn-ember w-full max-w-xs py-4 font-display font-bold text-lg">
           {status === "requesting" || status === "loading-model" ? "Loading camera & model…" : "Open Camera"}
         </button>
         <p className="text-ink-700 text-xs max-w-xs">Camera video is processed on your device only and never uploaded.</p>
@@ -168,7 +168,7 @@ export default function WorkoutClient() {
           </button>
           <div className="flex flex-col items-center">
             <span className="text-[10px] uppercase tracking-wide text-ink-300">State</span>
-            <span className="text-xs font-mono text-volt-400">{liveState.replace("_", " ")}</span>
+            <span className="text-xs font-mono text-ember-400">{liveState.replace("_", " ")}</span>
           </div>
           <div className="flex flex-col items-end">
             <span className="text-[10px] uppercase tracking-wide text-ink-300">Tracking</span>
@@ -188,7 +188,7 @@ export default function WorkoutClient() {
           {phase === "resting" && (
             <div className="flex flex-col items-center gap-2">
               <span className="text-ink-300 text-sm uppercase tracking-widest">Rest</span>
-              <div className="font-display text-7xl font-bold volt-text">{restSecondsLeft}</div>
+              <div className="font-display text-7xl font-bold ember-text">{restSecondsLeft}</div>
             </div>
           )}
         </div>
@@ -205,7 +205,7 @@ export default function WorkoutClient() {
             <button onClick={endCurrentSet} disabled={currentSetReps === 0} className="btn-ghost flex-1 py-3.5 font-semibold disabled:opacity-40">
               End Set &amp; Rest
             </button>
-            <button onClick={finishWorkout} disabled={submitting} className="btn-volt flex-1 py-3.5 font-semibold">
+            <button onClick={finishWorkout} disabled={submitting} className="btn-ember flex-1 py-3.5 font-semibold">
               {submitting ? "Saving…" : "Finish"}
             </button>
           </>
@@ -213,7 +213,7 @@ export default function WorkoutClient() {
         {phase === "resting" && (
           <>
             <button onClick={skipRest} className="btn-ghost flex-1 py-3.5 font-semibold">Skip Rest</button>
-            <button onClick={finishWorkout} disabled={submitting} className="btn-volt flex-1 py-3.5 font-semibold">
+            <button onClick={finishWorkout} disabled={submitting} className="btn-ember flex-1 py-3.5 font-semibold">
               {submitting ? "Saving…" : "Finish"}
             </button>
           </>
